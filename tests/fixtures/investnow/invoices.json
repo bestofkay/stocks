@@ -1,0 +1,1 @@
+{"response_code":200,"message":"Invoice history retrieved successfully","data":[{"id":"inv-1","amount":100000,"status":"SUCCESSFUL","currency":"NGN","createdAt":"2026-10-20T09:00:00Z"}]}

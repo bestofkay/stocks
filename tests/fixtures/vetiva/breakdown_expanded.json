@@ -1,0 +1,1 @@
+{"message":"expanded portfolio breakdown fetched successfully","status_code":200,"data":{"portfolio_value":15000,"unrealized_pnl":1200,"breakdown":[{"asset_type":"STOCKS","amount":14200,"percentage":94.67},{"asset_type":"MONEY_MARKET","amount":800,"percentage":5.33}],"counts":{"FIXED_INCOME":0,"MONEY_MARKET":1,"STOCKS":1,"TRUSTS":0}}}

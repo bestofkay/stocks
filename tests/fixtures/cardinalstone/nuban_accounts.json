@@ -1,0 +1,1 @@
+{"statusCode":200,"message":"Success","data":[{"id":1,"accountName":"CARDINALSTONE/TEST CLIENT","accountNumber":"9990000001","accountRef":"NUBAN-00000-1","bankName":"Nombank MFB","currency":"NGN","gateway":"NOMBA","deleted":false,"suspended":false,"nubanProduct":{"id":1,"name":"NGN Wallet","description":"CARDINALSTONE WALLET"}}]}

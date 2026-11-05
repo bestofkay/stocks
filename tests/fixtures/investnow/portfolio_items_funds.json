@@ -1,0 +1,10 @@
+{"response_code":200,"message":"Successfully Retrieved.","data":{"uceeCustomerPortfolioInfo":{
+"assetManagement":[{"customerInformation":{"customer_NO":"C1"},"portfolios":[
+ {"cashAccount":{"account_NO":"MMF-001","account_NAME":"TEST CLIENT MMF","currency_ID":"NGN","current_BALANCE":1500,"product_ID":"MMR-MF-000001","customer_NO":"C1"},
+  "fundAccount":{"currenT_VALUE":105000.5,"totaL_PURCHASE_AMOUNT":100000,"outstandinG_ACCRUED_INTEREST":5000.5,"totaL_ACCRUED_INTEREST":5200},
+  "placement":{}}]}],
+"trustees":[],
+"wealthManagement":[{"customerInformation":{"customer_NO":"C1"},"portfolios":[
+ {"cashAccount":{"account_NO":"WM-009","account_NAME":"TEST CLIENT WM","currency_ID":"NGN","current_BALANCE":0},
+  "placement":{"product_DESC":"Fixed Deposit 91 Days","product_Code":"FD91","placement_ID":"PL-77","investment_AMOUNT":200000,"current_BALANCE_AMOUNT":204100,"accrued_INTEREST_AMOUNT":4100,"dda_ACCOUNT_ID":"WM-009"}}]}],
+"securities":[]}}}

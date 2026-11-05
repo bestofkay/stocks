@@ -1,0 +1,10 @@
+<html><body><p>Customer Number: 000123</p><a href="/iwnewebiz/Home/LogOut">Log Off</a><h2>Account Statement</h2>
+<table class="table"><thead><tr><th>Account Transactions as at 02-Nov-2026 12:14:06.869</th><th>Value (₦)</th></tr></thead>
+<tbody><tr><td>Total Balance</td><td class="text-right">12,500.75</td></tr></tbody></table>
+<form action="/iwnewebiz/CustInfo/AccountStatement" method="post">
+<select name="Sortby"><option value="0">Account Statement</option><option value="1">Account Balances</option></select>
+<select name="MasterAccount"><option value="200000001">Margin Involvement</option><option value="200000001" selected="selected">Stock/Securities</option></select>
+<input type="date" name="StartDate" value=""><input type="date" name="EndDate" value="">
+<input name="__RequestVerificationToken" type="hidden" value="stmt-tok"></form>
+<table class="table" id="datatable67"><thead><tr><th>Value Date</th><th>Description</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead><tbody></tbody></table>
+</body></html>

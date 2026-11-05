@@ -1,0 +1,1 @@
+{"access_token":"tok-1","token_type":"bearer","user":{"id":"u-1","email":"user@example.com","firstName":"Test","userStatus":"Active","customer":{"id":501,"customerCode":"C0001","full_name":"TEST CLIENT","amId":"AM-9","stId":"ST-7","cscs":"CSCS-123","chn":"C0000001AA","customerStatus":"Active"},"account_listing":[]}}

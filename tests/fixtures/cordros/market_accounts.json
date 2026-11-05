@@ -1,0 +1,1 @@
+{"success":true,"message":"Response from SymPlus","data":{"status":"success","result":[{"GetMarketAccounts":[{"MARKET_ACCOUNT_ID":"700123","MARKET_ID":"NSE1","MARKET_DESCRIPTION":"NGX Equities","CASH_FUNDING_ACCOUNT_ID":"900123"}]}]}}

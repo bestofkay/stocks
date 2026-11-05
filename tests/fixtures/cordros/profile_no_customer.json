@@ -1,0 +1,1 @@
+{"success":true,"message":"User profile","data":{"id":"u-1","email":"user@example.com","firstName":"Test","userStatus":"Active","userType":"Customer","customer":null,"account_listing":[]}}

@@ -1,0 +1,1 @@
+{"statusCode":200,"message":"Trading account report retrieved successfully","data":{"accountId":"acct-0001","positionDate":"2026-10-30","reportCurrency":"NGN","totalValue":0,"totalCost":0,"positionInstruments":[],"gainLoss":0,"gainLossPercent":0}}

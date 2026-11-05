@@ -1,0 +1,11 @@
+<html><body><p>Customer Number: 000123</p><a href="/iwnewebiz/Home/LogOut">Log Off</a>
+<table class="table table-striped table-bordered"><thead><tr id="fresh"><th>Deposit for shares account balance</th><th style="text-align: right">12,500.75 as of 02-Nov-2026 12:14:17.632 </th></tr></thead>
+<tbody><tr><th>Open Orders</th><td style="text-align:right">0.00</td></tr><tr><th>Balance Available for Purchases</th><td style="text-align: right">12,500.75</td></tr></tbody></table>
+<form action="/iwnewebiz/Trade/Trade" method="post"><input id="OpenOrders" name="OpenOrders" type="hidden" value="0">
+<select name="Action"><option value="Buy">Buy</option><option value="Sell">Sell</option></select>
+<select name="CSCSAcctNumber"><option value="CSCS-0001">CSCS-0001</option></select>
+<select name="Symbol"><option value="">-Select Symbol-</option><option value="DANGCEM">DANGCEM</option><option value="GTCO">GTCO</option></select>
+<select name="OrderType"><option value="">-Select Symbol-</option><option selected="selected" value="Market">Market</option><option value="Limit">Limit</option></select>
+<input type="number" name="PriceLimit" value="0"><input type="number" name="Units" value=""><input type="date" value="2026-11-16" name="DateLimit" class="form-control" , id="DateLimit" , required />
+<textarea class="form-control" id="Instructions" maxlength="100" name="Instructions" rows="5"> </textarea><input name="__RequestVerificationToken" type="hidden" value="trade-tok">
+<button type="submit">Preview Order</button></form></body></html>

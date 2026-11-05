@@ -1,0 +1,1 @@
+{"statusCode":200,"message":"Investment accounts retrived successfully","data":[{"id":"acct-0001","accountNo":"0000000001","accountLabel":"Test Client","clientId":"client-0001","currency":"NGN","cashBalance":1500.5,"totalValue":0,"productCode":"NGX_TRADING","productLabel":"NGX Trading","status":"ACTIVE","tradingAccountNo":"0100000001","deleted":false}]}
