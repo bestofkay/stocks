@@ -126,7 +126,7 @@ See [docs/ADDING_PROVIDERS.md](docs/ADDING_PROVIDERS.md) to add brokers without 
 - Auth rate limiting, request size limits, security headers
 - Browser navigation restricted to provider allow-lists (SSRF protection)
 - Secrets redacted from logs and audit metadata
-- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone, InvestNaija, Fundvine: funding instructions + equity buy/sell). No withdrawals/transfers.
+- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone, InvestNaija, Fundvine, ICON Stock, Atlas: funding instructions + equity buy/sell). No withdrawals/transfers.
 
 ## Scheduling
 

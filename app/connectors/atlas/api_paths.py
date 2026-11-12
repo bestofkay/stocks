@@ -22,4 +22,5 @@ INTEGRATION_BLOCKERS = [
     "Portfolio/order detail grids use Caladata Folio WebSocket services (cftrader).",
     "Online card funding (WebPay) is disabled for this portal (canPayOnline=false).",
     "Provider enforces single concurrent login; connector must logout to release the lock.",
+    "OMS equity orders need an open FIX session (ftwsfes snlst on=true); exchange may still reject saves outside hours.",
 ]

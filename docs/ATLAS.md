@@ -25,7 +25,7 @@
 - Provider allows only one active login; always call logout / `disconnect()` to release the lock.
 - Per-symbol holdings depend on Folio portfolio grid query; when empty, connector falls back to asset-class summary from the dashboard.
 - Online card funding is off for this white-label; fund via Atlass using the trading account reference.
-- Equity mandates use `ftwsmndts` (customer mandate path); live fills depend on market session state.
+- Equity orders use `ftwsoms` when `isTrader`, otherwise `ftwsmndts` mandates (`symbl` / `lmtPx`; account as string). Requires an open FIX session from `ftwsfes`/`snlst` with `on:true`. Duplicate/KYC warnings are re-sent with `ovrdOrd` / `ovrdKyc`.
 
 ## Manual re-test
 

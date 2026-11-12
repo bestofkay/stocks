@@ -151,7 +151,13 @@ class AtlasConnector(BrokerConnector):
             await self._raw("GET", api_paths.LOGIN_PAGE)
 
             last_msg = "Authentication failed"
-            for attempt in range(8):
+            hashed = _hex_hlp85(password)
+            for attempt in range(20):
+                # Best-effort release of any prior lock held by this client jar
+                try:
+                    await self._raw("GET", api_paths.LOGOUT_USER)
+                except Exception:
+                    pass
                 await self._raw(
                     "POST",
                     api_paths.AUTH_VALIDATE,
@@ -161,22 +167,22 @@ class AtlasConnector(BrokerConnector):
                 auth = await self._raw(
                     "POST",
                     api_paths.AUTH_LOGIN,
-                    content=f"un={username}&pw={_hex_hlp85(password)}",
+                    content=f"un={username}&pw={hashed}",
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
                 )
-                text = auth.text.strip()
-                last_msg = text
+                text = (auth.text or "").strip()
+                last_msg = text or last_msg
                 if text.startswith("OK||OK"):
                     break
-                if "logged in already" in text.lower():
-                    # Kick prior session then retry
+                if "logged in already" in text.lower() or not text:
                     await self._raw(
                         "POST",
                         api_paths.AUTH_OVERRIDE,
-                        content=f"un={username}&pw={_hex_hlp85(password)}",
+                        content=f"un={username}&pw={hashed}",
                         headers={"Content-Type": "application/x-www-form-urlencoded"},
                     )
-                    await asyncio.sleep(2 + attempt)
+                    # Server-side exclusive lock can linger after an orphaned session
+                    await asyncio.sleep(min(30, 3 + attempt * 2))
                     continue
                 if text.startswith("errmsg||"):
                     return AuthResult(success=False, status="failed", message=text.split("||", 1)[-1])
@@ -362,6 +368,19 @@ class AtlasConnector(BrokerConnector):
         self._instruments_cache = [r for r in resp if isinstance(r, dict)] if isinstance(resp, list) else []
         return self._instruments_cache
 
+    async def _trading_session(self) -> dict[str, Any]:
+        """First open Folio FIX/trading session (`ftwsfes` / `snlst`, `on=true`)."""
+        try:
+            resp = await self._ws_ask(
+                {"svc": "ftwsfes", "inf": "snlst", "actn": "r", "on": True},
+                timeout=10.0,
+            )
+        except AppError:
+            return {}
+        if isinstance(resp, list) and resp and isinstance(resp[0], dict):
+            return resp[0]
+        return {}
+
     # ----------------------------------------------------------------- orders
 
     async def place_order(self, order: OrderRequest) -> OrderResult:
@@ -379,47 +398,69 @@ class AtlasConnector(BrokerConnector):
         if not acct:
             raise AppError(ErrorCode.ACCOUNT_NOT_FOUND, "No Atlas trading account found", status_code=404)
 
-        # Customer mandates when allowCustomerMandates; trader path uses OMS.
+        # Trader portal uses OMS (ftwsoms); customer path uses mandates (ftwsmndts).
+        # Field names match Folio order/mandate form widgets (symbl, lmtPx, …).
         side = "1" if order.side.value.lower() == "buy" else "2"
-        payload = {
-            "svc": "ftwsmndts",
-            "inf": "mndts",
+        is_trader = bool(self._settings.get("isTrader"))
+        session = await self._trading_session()
+        if not session.get("value"):
+            raise AppError(
+                ErrorCode.VALIDATION_ERROR,
+                "No open Atlas trading session (market closed or FIX session down)",
+                status_code=422,
+            )
+        s_id = str(session["value"])
+        x_id = session.get("xId") or session.get("mktId") or "1"
+        mkt_id = session.get("mktId") or x_id
+        payload: dict[str, Any] = {
+            "svc": "ftwsoms" if is_trader else "ftwsmndts",
             "actn": "c",
-            "acct": int(acct) if str(acct).isdigit() else acct,
-            "smbl": symbol,
-            "sId": "1",
-            "xId": "1",
+            # Folio Select widgets submit account as string; ints are treated as empty.
+            "acct": str(acct),
+            "symbl": symbol,
+            "sId": s_id,
+            "xId": str(x_id),
+            "mktId": str(mkt_id),
+            "mktSeg": "1",
             "side": side,
             "qty": str(int(order.quantity)),
             "ordType": "2" if order.order_type == OrderType.LIMIT else "1",
-            "px": str(order.limit_price) if order.limit_price is not None else "",
+            "lmtPx": str(order.limit_price) if order.limit_price is not None else "",
+            "tif": "0",
+            "pxType": "2" if order.order_type == OrderType.LIMIT else "1",
+            "sectype": "1",
+            "id": "-",
+            "vn": "0",
         }
-        try:
-            resp = await self._ws_ask(payload, timeout=15.0)
-        except AppError as exc:
-            # Surface validation-like failures clearly
-            raise AppError(
-                ErrorCode.VALIDATION_ERROR,
-                str(exc.message),
-                status_code=422,
-            ) from exc
+        if not is_trader:
+            payload["inf"] = "mndts"
+
+        resp = await self._ws_ask(payload, timeout=20.0)
+        # Folio may warn (duplicate / KYC); UI re-sends with override flags.
+        if isinstance(resp, dict) and str(resp.get("dOp") or "").upper() == "WARNING":
+            override = dict(payload)
+            if str(resp.get("dCx") or "").upper() == "KYC":
+                override["ovrdKyc"] = True
+            else:
+                override["ovrdOrd"] = True
+            resp = await self._ws_ask(override, timeout=20.0)
 
         if isinstance(resp, dict) and str(resp.get("dOp") or "").upper() == "ERROR":
             raise AppError(
                 ErrorCode.VALIDATION_ERROR,
-                str(resp.get("msg") or "Atlas rejected the mandate"),
+                str(resp.get("msg") or "Atlas rejected the order"),
                 status_code=422,
                 details={"broker": resp},
             )
         order_id = None
         if isinstance(resp, dict):
-            order_id = str(resp.get("id") or resp.get("ordId") or resp.get("mndtId") or "") or None
+            order_id = str(resp.get("id") or resp.get("ordId") or resp.get("cloid") or resp.get("mndtId") or "") or None
         return OrderResult(
             external_order_id=order_id,
             status="submitted",
             symbol=symbol,
             side=order.side,
-            message="Mandate submitted via Atlas CitiTrader",
+            message="Order submitted via Atlas CitiTrader",
             raw=resp if isinstance(resp, dict) else {"resp": resp},
         )
 
