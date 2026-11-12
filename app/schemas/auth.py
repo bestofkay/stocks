@@ -6,6 +6,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.schemas.syncs import SyncAcceptedResponse
+
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -26,6 +28,8 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     expires_in: int
+    # Background provider refreshes kicked off for existing connections (non-blocking)
+    syncs_started: list[SyncAcceptedResponse] = Field(default_factory=list)
 
 
 class UserResponse(BaseModel):

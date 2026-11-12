@@ -56,6 +56,24 @@ http://127.0.0.1:8000
 
 **Important:** Portfolio endpoints read from the database. If you never sync, holdings will be empty.
 
+### Recommended short client path (happy path)
+
+Most apps only need this:
+
+```text
+1. POST /api/v1/auth/login
+2. POST /api/v1/connections   ← sync=true by default (stores broker login + starts sync)
+3. GET  /api/v1/connections/{id}/ready   ← poll until ready=true
+4. GET  /api/v1/portfolio/...  (and deposits / markets / orders as needed)
+```
+
+`POST /connections` returns `sync` (`sync_id`, `poll_url`) and `ready_url`.  
+You do **not** need a separate `POST /connections/{id}/sync` on first connect.
+
+On later logins, `POST /auth/login` also returns `syncs_started` for existing connections (background refresh).
+
+Manual `POST .../sync`, provider listing, and MFA endpoints remain available for admin/debug and edge cases.
+
 ---
 
 ## 2. Start the server (once)
@@ -312,9 +330,12 @@ Content-Type: application/json
     "username": "you@email.com",
     "password": "your-afrinvestor-password"
   },
-  "options": {}
+  "options": {},
+  "sync": true
 }
 ```
+
+`sync` defaults to `true` (omit it unless you want credentials saved without fetching yet).
 
 **Response `201`** (secrets never returned)
 
@@ -324,19 +345,58 @@ Content-Type: application/json
   "provider_id": "afrinvestor",
   "provider_key": "afrinvestor",
   "display_name": "My Afrinvestor",
-  "status": "configured",
+  "status": "syncing",
   "last_sync_at": null,
   "last_successful_sync_at": null,
   "last_error_code": null,
   "has_credentials": true,
+  "has_broker_session": false,
+  "portfolio_ready": false,
+  "latest_sync": {
+    "sync_id": 55,
+    "status": "queued",
+    "poll_url": "/api/v1/syncs/55",
+    "current_step": "queued",
+    "progress": "0"
+  },
+  "sync": {
+    "sync_id": 55,
+    "status": "queued",
+    "message": "Provider sync started; poll ready_url or sync.poll_url",
+    "poll_url": "/api/v1/syncs/55",
+    "connection_id": 12
+  },
+  "ready_url": "/api/v1/connections/12/ready",
   "created_at": "2026-10-27T12:10:00Z",
   "updated_at": "2026-10-27T12:10:00Z"
 }
 ```
 
-Save `id` (example `12`) — you need it for sync.
+Save `id` and poll `ready_url` until `ready: true`, then call portfolio endpoints.
 
 Password is encrypted with AES-256-GCM. It is **never** returned in API responses.
+
+### 5.1b Wait until provider data is ready
+
+```http
+GET /api/v1/connections/12/ready
+Authorization: Bearer <access_token>
+```
+
+```json
+{
+  "ready": true,
+  "connection_id": 12,
+  "status": "configured",
+  "latest_sync": {
+    "sync_id": 55,
+    "status": "completed",
+    "poll_url": "/api/v1/syncs/55"
+  },
+  "message": "Provider sync completed; portfolio endpoints are ready",
+  "ready_url": "/api/v1/connections/12/ready"
+}
+```
 
 ### 5.2 List connections
 

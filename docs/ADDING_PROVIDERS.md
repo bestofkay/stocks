@@ -70,6 +70,10 @@ shared base (`app/connectors/zanibal_iw/base.py`) instead of writing a new conne
 | `afrinvestor` | operational | Hybrid Playwright + observed APIs |
 | `morgan` | operational | Modern app (Turnstile + DOM scrape); see [MORGAN.md](MORGAN.md) |
 | `cardinalstone` | operational | Authenticated HTTP (Bearer JWT, no browser); see [CARDINALSTONE.md](CARDINALSTONE.md) |
+| `investnaija` | operational | Authenticated HTTP (JWT + uuid); see [INVESTNAIJA.md](INVESTNAIJA.md) |
+| `fundvine` | operational | NaYa OMS cookies + ASMX JSON; see [FUNDVINE.md](FUNDVINE.md) |
+| `iconstock` | operational | NaYa OMS cookies + ASMX JSON; see [ICONSTOCK.md](ICONSTOCK.md) |
+| `atlas` | operational | Caladata Folio cookies + WebSocket; see [ATLAS.md](ATLAS.md) |
 | `vetiva` | scaffolded | Authenticated HTTP (Bearer JWT, no browser); see [VETIVA.md](VETIVA.md) |
 | `wstc` | scaffolded | Zanibal E-Business Suite subclass; see [ZANIBAL_IW.md](ZANIBAL_IW.md) |
 | `sisl` | scaffolded | Zanibal E-Business Suite subclass; see [ZANIBAL_IW.md](ZANIBAL_IW.md) |

@@ -229,18 +229,34 @@ def apply_options_patch(
 
 
 def connection_has_broker_session(db: Session, conn: BrokerConnection) -> bool:
-    """Non-secret flag: whether an encrypted broker browser session is stored."""
+    """Non-secret flag: whether an encrypted broker session is stored."""
     options = decrypt_options(db, conn)
     state = options.get("storage_state")
     if isinstance(state, dict) and bool(state.get("cookies")):
         return True
-    # HTTP connectors persist bearer/refresh tokens under ``api_session``
+    # HTTP connectors persist tokens/cookies under ``api_session``
     api_session = options.get("api_session")
-    return isinstance(api_session, dict) and bool(api_session.get("token"))
+    if not isinstance(api_session, dict):
+        return False
+    if api_session.get("token") or api_session.get("access_token"):
+        return True
+    cookies = api_session.get("cookies")
+    return isinstance(cookies, dict) and bool(cookies)
+
+
+SUCCESSFUL_SYNC_STATUSES = frozenset({"completed", "completed_with_warnings"})
 
 
 def connection_to_response(db: Session, conn: BrokerConnection) -> dict[str, Any]:
+    from app.services import sync_service
+
     provider = db.get(Provider, conn.provider_id)
+    latest = sync_service.latest_sync_for_connection(db, conn.id)
+    latest_summary = sync_service.sync_summary(latest) if latest else None
+    portfolio_ready = bool(
+        conn.last_successful_sync_at
+        or (latest is not None and latest.status in SUCCESSFUL_SYNC_STATUSES)
+    )
     return {
         "id": conn.id,
         "provider_id": provider.provider_key if provider else str(conn.provider_id),
@@ -252,6 +268,8 @@ def connection_to_response(db: Session, conn: BrokerConnection) -> dict[str, Any
         "last_error_code": conn.last_error_code,
         "has_credentials": bool(conn.credentials_encrypted),
         "has_broker_session": connection_has_broker_session(db, conn),
+        "latest_sync": latest_summary,
+        "portfolio_ready": portfolio_ready,
         "created_at": conn.created_at,
         "updated_at": conn.updated_at,
     }

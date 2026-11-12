@@ -23,6 +23,7 @@ itsdangerous>=2.2.0
 
 # HTTP / browser
 httpx>=0.28.0
+websockets>=14.0
 playwright>=1.49.0
 # Morgan Capital Turnstile bootstrap (UC Mode)
 seleniumbase>=4.33.0

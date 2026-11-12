@@ -85,7 +85,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 |------|-----------|
 | Auth | `POST /api/v1/auth/register`, `/login`, `/refresh`, `/logout`, `GET /me` |
 | Providers | `GET /api/v1/providers`, `GET /api/v1/providers/{id}` |
-| Connections | CRUD + `/test` + `/mfa` + `/sync` under `/api/v1/connections` |
+| Connections | CRUD + `/ready` + `/test` + `/mfa` + `/sync` under `/api/v1/connections` (create syncs by default) |
 | Syncs | `GET /api/v1/syncs`, `GET /api/v1/syncs/{id}`, `POST /api/v1/syncs/{id}/cancel` |
 | Portfolio | `/summary`, `/holdings`, `/accounts`, `/by-broker`, `/by-security`, `/history`, `/transactions` |
 | Loan | `GET /loan/collateral`, `GET /loan/eligibility`, `POST /loan/eligibility/selected` (30% LTV from holdings only; cash excluded); see [docs/LOAN.md](docs/LOAN.md) |
@@ -103,6 +103,9 @@ Connectors are discovered from `app/connectors/*/connector.py`.
 | `morgan` | **operational** (live-verified) | Morgan Capital modern app (Turnstile + DOM); see [docs/MORGAN.md](docs/MORGAN.md) |
 | `cardinalstone` | **operational** (live-verified) | Authenticated HTTP (Bearer JWT); see [docs/CARDINALSTONE.md](docs/CARDINALSTONE.md) |
 | `investnaija` | **operational** (live-verified; order create gated by broker gateway) | Authenticated HTTP (JWT + uuid); see [docs/INVESTNAIJA.md](docs/INVESTNAIJA.md) |
+| `fundvine` | **operational** (live-verified; Paystack funding / EqtyMandate orders) | Authenticated HTTP (NaYa OMS cookies + ASMX); see [docs/FUNDVINE.md](docs/FUNDVINE.md) |
+| `iconstock` | **operational** (live-verified; Paystack funding / EqtyMandate orders) | Authenticated HTTP (NaYa OMS cookies + ASMX); see [docs/ICONSTOCK.md](docs/ICONSTOCK.md) |
+| `atlas` | **operational** (live-verified; Folio WebSocket dashboard / markets) | Authenticated HTTP + WebSocket (Caladata Folio CitiTrader); see [docs/ATLAS.md](docs/ATLAS.md) |
 | `vetiva` | **scaffolded** (endpoints live-observed; pending live run) | Authenticated HTTP (Bearer JWT); see [docs/VETIVA.md](docs/VETIVA.md) |
 | `wstc` | **scaffolded** (pages live-observed; pending live run) | Zanibal E-Business Suite (HTML); see [docs/ZANIBAL_IW.md](docs/ZANIBAL_IW.md) |
 | `sisl` | **scaffolded** (same software as WSTC; login page inspected) | Zanibal E-Business Suite (HTML); see [docs/ZANIBAL_IW.md](docs/ZANIBAL_IW.md) |
@@ -123,7 +126,7 @@ See [docs/ADDING_PROVIDERS.md](docs/ADDING_PROVIDERS.md) to add brokers without 
 - Auth rate limiting, request size limits, security headers
 - Browser navigation restricted to provider allow-lists (SSRF protection)
 - Secrets redacted from logs and audit metadata
-- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone, InvestNaija: dedicated VA instructions + equity buy/sell). No withdrawals/transfers.
+- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone, InvestNaija, Fundvine: funding instructions + equity buy/sell). No withdrawals/transfers.
 
 ## Scheduling
 

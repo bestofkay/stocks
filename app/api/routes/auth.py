@@ -15,6 +15,7 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
 )
+from app.schemas.syncs import SyncAcceptedResponse
 from app.services import auth_service, sync_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -58,13 +59,16 @@ def login(
         ip_address=request.client.host if request.client else None,
     )
     # Refresh stored collateral assets for all connected brokers (upsert via sync)
+    syncs_started: list[SyncAcceptedResponse] = []
     for run in sync_service.enqueue_idle_syncs_for_user(db, user):
         background_tasks.add_task(sync_service.start_sync_background, run.id)
+        syncs_started.append(SyncAcceptedResponse.model_validate(sync_service.sync_accepted(run)))
     _set_session_cookie(response, access)
     return TokenResponse(
         access_token=access,
         refresh_token=refresh,
         expires_in=settings.session_max_age_seconds,
+        syncs_started=syncs_started,
     )
 
 

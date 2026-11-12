@@ -1,0 +1,13 @@
+{
+  "d": {
+    "AccountNumber": "0138054839",
+    "AccountName": "Test Client",
+    "AccountType": "Individual",
+    "PortfolioID": 2916,
+    "Bank": "Guaranty Trust Bank Plc",
+    "BankAccountNumber": "0000000000",
+    "BankAccountName": "Test Client",
+    "Email": "client@example.com",
+    "CanTrade": true
+  }
+}

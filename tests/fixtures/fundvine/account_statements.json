@@ -1,0 +1,25 @@
+{
+  "d": {
+    "__type": "NaYa.OMS.Web.AccountStatementResponse",
+    "AccountStatementItems": [
+      {
+        "Description": "Cash deposit",
+        "Credit": 1000,
+        "Debit": 0,
+        "PostedTime": "/Date(1730000000000)/",
+        "Id": "tx-1"
+      }
+    ],
+    "PendingCredit": "n/a",
+    "PendingDebit": "n/a",
+    "BeginningBalance": "n/a",
+    "AvailableBalance": 1250.5,
+    "TotalCredit": "n/a",
+    "TotalDebit": "n/a",
+    "AccountName": "Test Client",
+    "Success": false,
+    "Message": "Un-expected error occured. Please try again. Contact Support if you continue to see this message",
+    "BeginningBalanceColorCls": "neg-bal",
+    "AvailableBalanceColorCls": "neg-bal"
+  }
+}

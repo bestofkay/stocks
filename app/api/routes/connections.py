@@ -7,6 +7,8 @@ from fastapi import APIRouter, BackgroundTasks
 from app.api.deps import CurrentUser, DbSession
 from app.schemas.connections import (
     ConnectionCreate,
+    ConnectionCreateResponse,
+    ConnectionReadyResponse,
     ConnectionResponse,
     ConnectionTestResponse,
     ConnectionUpdate,
@@ -19,13 +21,14 @@ from app.services.connection_service import connection_to_response
 router = APIRouter(prefix="/connections", tags=["connections"])
 
 
-@router.post("", response_model=ConnectionResponse, status_code=201)
+@router.post("", response_model=ConnectionCreateResponse, status_code=201)
 def create_connection(
     body: ConnectionCreate,
     db: DbSession,
     user: CurrentUser,
     background_tasks: BackgroundTasks,
-) -> ConnectionResponse:
+) -> ConnectionCreateResponse:
+    """Save encrypted provider credentials and (by default) start sync immediately."""
     conn = connection_service.create_connection(
         db,
         user,
@@ -34,11 +37,27 @@ def create_connection(
         credentials=body.credentials,
         options=body.options,
     )
-    # First sync upserts holdings/cash into DB for loan collateral
-    run = sync_service.try_enqueue_sync(db, user, conn.id)
-    if run is not None:
-        background_tasks.add_task(sync_service.start_sync_background, run.id)
-    return ConnectionResponse.model_validate(connection_to_response(db, conn))
+    sync_info = None
+    if body.sync:
+        run = sync_service.try_enqueue_sync(db, user, conn.id)
+        if run is not None:
+            background_tasks.add_task(sync_service.start_sync_background, run.id)
+            sync_info = SyncAcceptedResponse.model_validate(
+                sync_service.sync_accepted(
+                    run,
+                    message="Provider sync started; poll ready_url or sync.poll_url",
+                )
+            )
+        else:
+            # Extremely rare on create; surface whatever is already active
+            latest = sync_service.latest_sync_for_connection(db, conn.id)
+            if latest is not None:
+                sync_info = SyncAcceptedResponse.model_validate(sync_service.sync_accepted(latest))
+
+    payload = connection_to_response(db, conn)
+    payload["sync"] = sync_info.model_dump() if sync_info else None
+    payload["ready_url"] = f"/api/v1/connections/{conn.id}/ready"
+    return ConnectionCreateResponse.model_validate(payload)
 
 
 @router.get("", response_model=list[ConnectionResponse])
@@ -51,6 +70,18 @@ def list_connections(db: DbSession, user: CurrentUser) -> list[ConnectionRespons
 def get_connection(connection_id: int, db: DbSession, user: CurrentUser) -> ConnectionResponse:
     conn = connection_service.get_connection(db, user, connection_id)
     return ConnectionResponse.model_validate(connection_to_response(db, conn))
+
+
+@router.get("/{connection_id}/ready", response_model=ConnectionReadyResponse)
+def connection_ready(
+    connection_id: int,
+    db: DbSession,
+    user: CurrentUser,
+) -> ConnectionReadyResponse:
+    """Single poll target after connect: when ``ready`` is true, use portfolio APIs."""
+    return ConnectionReadyResponse.model_validate(
+        sync_service.connection_ready_payload(db, user, connection_id)
+    )
 
 
 @router.patch("/{connection_id}", response_model=ConnectionResponse)
@@ -112,11 +143,7 @@ async def sync_connection(
 ) -> SyncAcceptedResponse:
     run = sync_service.enqueue_sync(db, user, connection_id)
     background_tasks.add_task(sync_service.start_sync_background, run.id)
-    return SyncAcceptedResponse(
-        sync_id=run.id,
-        status=run.status,
-        poll_url=f"/api/v1/syncs/{run.id}",
-    )
+    return SyncAcceptedResponse.model_validate(sync_service.sync_accepted(run))
 
 
 @router.get("/{connection_id}/syncs", response_model=list[SyncRunResponse])

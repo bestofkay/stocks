@@ -31,6 +31,18 @@ class SyncAcceptedResponse(BaseModel):
     status: str = "queued"
     message: str = "Synchronization accepted"
     poll_url: str
+    connection_id: int | None = None
+
+
+class SyncSummary(BaseModel):
+    """Compact sync pointer attached to connection responses."""
+
+    sync_id: int
+    status: str
+    poll_url: str
+    current_step: str | None = None
+    progress: Decimal | None = None
+    safe_error_message: str | None = None
 
 
 class SyncErrorResponse(BaseModel):

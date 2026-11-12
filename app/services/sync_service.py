@@ -47,6 +47,105 @@ def _lock_for(connection_id: int) -> asyncio.Lock:
 
 
 ACTIVE_SYNC_STATUSES = frozenset({"queued", "running", "waiting_for_user"})
+SUCCESSFUL_SYNC_STATUSES = frozenset({"completed", "completed_with_warnings"})
+TERMINAL_SYNC_STATUSES = frozenset(
+    {"completed", "completed_with_warnings", "failed", "cancelled"}
+)
+
+
+def sync_poll_url(sync_id: int) -> str:
+    return f"/api/v1/syncs/{sync_id}"
+
+
+def sync_summary(run: SyncRun | None) -> dict[str, Any] | None:
+    if run is None:
+        return None
+    return {
+        "sync_id": run.id,
+        "status": run.status,
+        "poll_url": sync_poll_url(run.id),
+        "current_step": run.current_step,
+        "progress": run.progress,
+        "safe_error_message": run.safe_error_message,
+    }
+
+
+def sync_accepted(run: SyncRun, *, message: str = "Synchronization accepted") -> dict[str, Any]:
+    return {
+        "sync_id": run.id,
+        "status": run.status,
+        "message": message,
+        "poll_url": sync_poll_url(run.id),
+        "connection_id": run.connection_id,
+    }
+
+
+def latest_sync_for_connection(db: Session, connection_id: int) -> SyncRun | None:
+    return (
+        db.query(SyncRun)
+        .filter(SyncRun.connection_id == connection_id)
+        .order_by(SyncRun.id.desc())
+        .first()
+    )
+
+
+def connection_ready_payload(db: Session, user: User, connection_id: int) -> dict[str, Any]:
+    """Whether portfolio endpoints can read DB data for this connection."""
+    conn = get_connection(db, user, connection_id)
+    latest = latest_sync_for_connection(db, conn.id)
+    summary = sync_summary(latest)
+    ready_url = f"/api/v1/connections/{conn.id}/ready"
+    if latest is None:
+        ready = bool(conn.last_successful_sync_at)
+        message = (
+            "No sync has run yet for this connection"
+            if not ready
+            else "Portfolio data is available from a previous successful sync"
+        )
+        return {
+            "ready": ready,
+            "connection_id": conn.id,
+            "status": conn.status,
+            "latest_sync": summary,
+            "message": message,
+            "ready_url": ready_url,
+        }
+    if latest.status in SUCCESSFUL_SYNC_STATUSES:
+        return {
+            "ready": True,
+            "connection_id": conn.id,
+            "status": conn.status,
+            "latest_sync": summary,
+            "message": "Provider sync completed; portfolio endpoints are ready",
+            "ready_url": ready_url,
+        }
+    if latest.status == "waiting_for_user":
+        return {
+            "ready": False,
+            "connection_id": conn.id,
+            "status": conn.status,
+            "latest_sync": summary,
+            "message": "Provider sync waiting for MFA — POST /connections/{id}/mfa then sync again",
+            "ready_url": ready_url,
+        }
+    if latest.status in ACTIVE_SYNC_STATUSES:
+        return {
+            "ready": False,
+            "connection_id": conn.id,
+            "status": conn.status,
+            "latest_sync": summary,
+            "message": "Provider sync still in progress",
+            "ready_url": ready_url,
+        }
+    return {
+        "ready": bool(conn.last_successful_sync_at),
+        "connection_id": conn.id,
+        "status": conn.status,
+        "latest_sync": summary,
+        "message": latest.safe_error_message
+        or f"Latest sync ended with status '{latest.status}'",
+        "ready_url": ready_url,
+    }
 
 
 def get_sync_run(db: Session, user: User, sync_id: int) -> SyncRun:
