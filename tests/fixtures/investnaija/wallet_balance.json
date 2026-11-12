@@ -1,0 +1,30 @@
+{
+  "code": 200,
+  "status": "success",
+  "message": "Customers wallet balance fetched",
+  "balance": 0,
+  "vNuban": "6244352498",
+  "data": {
+    "id": "65e9d192-e7d6-4f8d-89a2-e0c79f3f7801",
+    "title": "Wallet",
+    "type": "wallet",
+    "currency": "NGN",
+    "saveplan_users": [
+      {
+        "id": "972d7faa-0a9a-41f9-88d2-f9d5ee51e248",
+        "title": "Wallet",
+        "virtualAccounts": [
+          {
+            "provider": "Wema Bank",
+            "type": "Static",
+            "status": "Active",
+            "id": "4671fbe2-879c-48fa-9344-08f0065ddd00",
+            "nuban": "6244352498",
+            "amount": 0,
+            "expiresAt": null
+          }
+        ]
+      }
+    ]
+  }
+}

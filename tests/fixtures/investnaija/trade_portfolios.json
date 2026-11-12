@@ -1,0 +1,38 @@
+{
+  "code": 200,
+  "success": true,
+  "data": [
+    {
+      "id": "portfolio-token-1",
+      "active": true,
+      "name": "0000314707",
+      "label": "Okunuga Soji",
+      "customerId": "01a19cfe-10a0-74f1-a9f2-828e75a7e435",
+      "cashAccountId": "01a1ab1e-111e-777f-9d07-44649bbb6bb8",
+      "portfolioClass": "EXCHANGE",
+      "portfolioType": "NGX REGULAR",
+      "securityExchange": "NGX",
+      "accountNo": "0000314707",
+      "currentValuation": {"currency": "NGN", "amount": 1350},
+      "availableCash": {"currency": "NGN", "amount": 3598.55},
+      "cashBalance": {"currency": "NGN", "amount": 3598.55},
+      "currency": "NGN",
+      "tradingAccountNo": "0161888295",
+      "signature": "sig-token-1",
+      "portfolioHoldings": [
+        {
+          "active": true,
+          "securityId": "019f669c-3de2-79d8-85e8-f581687c27e7",
+          "companyName": "ACCESS HOLDINGS PLC",
+          "symbol": "ACCESSCORP",
+          "assetClass": "EQUITY",
+          "marketPrice": 27,
+          "quantity": 50,
+          "unitCost": 28.0291,
+          "currency": "NGN",
+          "investedAmount": 1401.455
+        }
+      ]
+    }
+  ]
+}

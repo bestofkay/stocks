@@ -1,0 +1,15 @@
+{
+  "code": 200,
+  "status": "success",
+  "data": {
+    "id": "fe8bb0b4-1abb-4e9c-9af5-a1df069d3185",
+    "firstName": "SOJI",
+    "lastName": "OKUNUGA",
+    "email": "user@example.com",
+    "twoFactorAuth": false,
+    "verified": true
+  },
+  "message": "Customer login success",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test",
+  "uuid_token": "ac4d75e63491uuid"
+}

@@ -102,6 +102,7 @@ Connectors are discovered from `app/connectors/*/connector.py`.
 | `afrinvestor` | **operational** (live-verified) | Hybrid (Playwright login + APIs) |
 | `morgan` | **operational** (live-verified) | Morgan Capital modern app (Turnstile + DOM); see [docs/MORGAN.md](docs/MORGAN.md) |
 | `cardinalstone` | **operational** (live-verified) | Authenticated HTTP (Bearer JWT); see [docs/CARDINALSTONE.md](docs/CARDINALSTONE.md) |
+| `investnaija` | **operational** (live-verified; order create gated by broker gateway) | Authenticated HTTP (JWT + uuid); see [docs/INVESTNAIJA.md](docs/INVESTNAIJA.md) |
 | `vetiva` | **scaffolded** (endpoints live-observed; pending live run) | Authenticated HTTP (Bearer JWT); see [docs/VETIVA.md](docs/VETIVA.md) |
 | `wstc` | **scaffolded** (pages live-observed; pending live run) | Zanibal E-Business Suite (HTML); see [docs/ZANIBAL_IW.md](docs/ZANIBAL_IW.md) |
 | `sisl` | **scaffolded** (same software as WSTC; login page inspected) | Zanibal E-Business Suite (HTML); see [docs/ZANIBAL_IW.md](docs/ZANIBAL_IW.md) |
@@ -122,7 +123,7 @@ See [docs/ADDING_PROVIDERS.md](docs/ADDING_PROVIDERS.md) to add brokers without 
 - Auth rate limiting, request size limits, security headers
 - Browser navigation restricted to provider allow-lists (SSRF protection)
 - Secrets redacted from logs and audit metadata
-- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone: dedicated VA instructions + equity buy/sell). No withdrawals/transfers.
+- Portfolio sync remains read-only by default; deposits/orders are available only when a connector advertises those capabilities (Afrinvestor, CardinalStone, InvestNaija: dedicated VA instructions + equity buy/sell). No withdrawals/transfers.
 
 ## Scheduling
 

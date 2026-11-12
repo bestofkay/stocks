@@ -38,6 +38,8 @@ INTEGRATION_BLOCKERS = [
     "Stock trading needs a TradeIN portfolio (GET /trades/portfolios); without one orders return 501.",
     "Asset-management (InvestIN) portfolios flagged 'unavailable' reject detail calls; list data is used.",
     "Savings/plans (SaveIN/PlanIN) and mutual-fund subscriptions are not imported yet.",
+    "trade-order/create fee-previews succeed, but the downstream investing gateway currently returns "
+    "'Failed to read request' for the observed numeric price payload (broker-side).",
 ]
 
 

@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "status": 200,
+  "data": [
+    {
+      "id": "019f669c-41f8-717b-9801-c823274c738f",
+      "secId": "JAIZBANK",
+      "secDesc": "JAIZ BANK PLC",
+      "status": "ACTIVE",
+      "type": "EQUITY",
+      "price": 7.65,
+      "currency": "NGN",
+      "marketCode": "NGX",
+      "name": "JAIZBANK",
+      "symbol": "JAIZBANK",
+      "description": "JAIZ BANK PLC",
+      "lastPx": 7.65
+    },
+    {
+      "id": "019f669c-3de2-79d8-85e8-f581687c27e7",
+      "secId": "ACCESSCORP",
+      "secDesc": "ACCESS HOLDINGS PLC",
+      "status": "ACTIVE",
+      "type": "EQUITY",
+      "price": 27,
+      "currency": "NGN",
+      "marketCode": "NGX",
+      "symbol": "ACCESSCORP",
+      "lastPx": 27
+    }
+  ]
+}
